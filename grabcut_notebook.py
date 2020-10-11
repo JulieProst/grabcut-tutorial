@@ -1,13 +1,11 @@
 #%% Import all necessary libraries and data
 from pathlib import Path
 
-import cv2.cv2 as cv2
-from matplotlib import pyplot as plt
+import cv2
 import numpy as np
+from matplotlib import pyplot as plt
 
-ROOT_FOLDER = Path(__file__).resolve().parents[0]
-IMAGES_FOLDER = ROOT_FOLDER / "images"
-OUTPUT_FOLDER = ROOT_FOLDER / "results"
+IMAGES_FOLDER = Path(__file__).resolve().parents[0] / "images"
 
 
 def show_image(image, title=None):
