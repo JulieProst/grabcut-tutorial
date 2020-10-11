@@ -72,7 +72,6 @@ cat_image_with_boundary_rectangle = cv2.rectangle(
 show_image(cat_image_with_boundary_rectangle, "Image with boundary rectangle")
 
 #%% GrabCut initialized only with a rectangle
-
 # Initialize mask image
 mask = np.zeros((height, width), np.uint8)
 
