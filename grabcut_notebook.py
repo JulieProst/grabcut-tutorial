@@ -5,7 +5,9 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-IMAGES_FOLDER = Path(__file__).resolve().parents[0] / "images"
+ROOT_FOLDER = Path(__file__).resolve().parents[0]
+IMAGES_FOLDER = ROOT_FOLDER / "images"
+OUTPUT_FOLDER = ROOT_FOLDER / "results"
 
 
 def show_image(image, title=None):
@@ -13,6 +15,7 @@ def show_image(image, title=None):
     plt.xticks([]), plt.yticks([])
     plt.title(title)
     plt.show()
+    plt.savefig(OUTPUT_FOLDER / title)
 
 
 #%% Show original image
@@ -72,6 +75,7 @@ cat_image_with_boundary_rectangle = cv2.rectangle(
 show_image(cat_image_with_boundary_rectangle, "Image with boundary rectangle")
 
 #%% GrabCut initialized only with a rectangle
+
 # Initialize mask image
 mask = np.zeros((height, width), np.uint8)
 
@@ -94,7 +98,6 @@ grabcut_mask = np.where((mask == cv2.GC_PR_BGD) | (mask == cv2.GC_BGD), 0, 1).as
     "uint8"
 )
 segmented_cat_image = cat_image.copy() * grabcut_mask[:, :, np.newaxis]
-
 show_image(segmented_cat_image, "GrabCut initialized with rectangle")
 
 #%% GrabCut with initial mask
