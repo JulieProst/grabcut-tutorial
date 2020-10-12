@@ -20,7 +20,6 @@ def show_image(image, title=None):
 
 #%% Show original image
 cat_image = cv2.imread(str(IMAGES_FOLDER / "white_cat_on_white_background.jpeg"))
-height, width, _ = cat_image.shape
 show_image(cat_image, "Original Image")
 
 #%% Binarize input image
@@ -45,12 +44,15 @@ contours_image = cv2.drawContours(cat_image.copy(), contours, -1, (0, 255, 0), 1
 show_image(contours_image, "Extracted contours")
 
 #%% Set GrabCut parameters
+cv2.setRNGSeed(0)
+number_of_iterations = 5
+
+# Define boundary rectangle containing the foreground object
 height, width, _ = cat_image.shape
 left_margin = 0.1
 up_margin = 0.07
 right_margin = 0.1
 down_margin = 0.07
-number_of_iterations = 5
 
 boundary_rectangle = (
     int(width * left_margin),
@@ -59,7 +61,6 @@ boundary_rectangle = (
     int(height * (1 - down_margin)),
 )
 
-cv2.setRNGSeed(0)
 #%%
 cat_image_with_boundary_rectangle = cv2.rectangle(
     cat_image.copy(),
