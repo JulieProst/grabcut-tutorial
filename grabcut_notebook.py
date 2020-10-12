@@ -34,7 +34,7 @@ binarized_cat = cv2.adaptiveThreshold(
     blockSize=9,
     C=7,
 )
-show_image(255 * binarized_cat, "Initial Mask")
+show_image(255 * binarized_cat, "Binarized Image")
 
 #%% Use OpenCV findContours method
 contours, hierarchy = cv2.findContours(
@@ -49,25 +49,25 @@ number_of_iterations = 5
 
 # Define boundary rectangle containing the foreground object
 height, width, _ = cat_image.shape
-left_margin = 0.1
-up_margin = 0.07
-right_margin = 0.1
-down_margin = 0.07
+left_margin_proportion = 0.1
+right_margin_proportion = 0.1
+up_margin_proportion = 0.07
+down_margin_proportion = 0.07
 
 boundary_rectangle = (
-    int(width * left_margin),
-    int(height * up_margin),
-    int(width * (1 - right_margin)),
-    int(height * (1 - down_margin)),
+    int(width * left_margin_proportion),
+    int(height * up_margin_proportion),
+    int(width * (1 - right_margin_proportion)),
+    int(height * (1 - down_margin_proportion)),
 )
 
 #%%
 cat_image_with_boundary_rectangle = cv2.rectangle(
     cat_image.copy(),
-    (int(width * left_margin), int(height * up_margin)),
+    (int(width * left_margin_proportion), int(height * up_margin_proportion)),
     (
-        int(width * (1 - right_margin)),
-        int(height * (1 - down_margin)),
+        int(width * (1 - right_margin_proportion)),
+        int(height * (1 - down_margin_proportion)),
     ),
     (255, 0, 0),
     1,
