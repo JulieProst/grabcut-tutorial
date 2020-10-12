@@ -1,7 +1,7 @@
 #%% Import all necessary libraries and data
 from pathlib import Path
 
-import cv2
+import cv2.cv2 as cv2
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -97,6 +97,7 @@ grabcut_mask = np.where((mask == cv2.GC_PR_BGD) | (mask == cv2.GC_BGD), 0, 1).as
     "uint8"
 )
 segmented_cat_image = cat_image.copy() * grabcut_mask[:, :, np.newaxis]
+
 show_image(segmented_cat_image, "GrabCut initialized with rectangle")
 
 #%% GrabCut with initial mask
