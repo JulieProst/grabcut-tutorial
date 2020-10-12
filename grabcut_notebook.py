@@ -5,7 +5,9 @@ import cv2
 from matplotlib import pyplot as plt
 import numpy as np
 
-IMAGES_FOLDER = Path(__file__).resolve().parents[0] / "images"
+ROOT_FOLDER = Path(__file__).resolve().parents[0]
+IMAGES_FOLDER = ROOT_FOLDER / "images"
+OUTPUT_FOLDER = ROOT_FOLDER / "results"
 
 
 def show_image(image, title=None):
@@ -13,6 +15,7 @@ def show_image(image, title=None):
     plt.xticks([]), plt.yticks([])
     plt.title(title)
     plt.show()
+    plt.savefig(OUTPUT_FOLDER / title)
 
 
 #%% Show original image
@@ -20,7 +23,7 @@ cat_image = cv2.imread(str(IMAGES_FOLDER / "white_cat_on_white_background.jpeg")
 height, width, _ = cat_image.shape
 show_image(cat_image, "Original Image")
 
-#%% Use OpenCV findContours method
+#%% Binarize input image
 gray_cat = cv2.cvtColor(cat_image, cv2.COLOR_RGB2GRAY)
 show_image(gray_cat, "Gray image")
 
@@ -32,7 +35,9 @@ binarized_cat = cv2.adaptiveThreshold(
     blockSize=9,
     C=7,
 )
-show_image(255 * binarized_cat, "Binarized Image")
+show_image(255 * binarized_cat, "Initial Mask")
+
+#%% Use OpenCV findContours method
 contours, hierarchy = cv2.findContours(
     binarized_cat, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
 )
@@ -69,37 +74,40 @@ cat_image_with_boundary_rectangle = cv2.rectangle(
 show_image(cat_image_with_boundary_rectangle, "Image with boundary rectangle")
 
 #%% GrabCut initialized only with a rectangle
-grabcut_mask = np.zeros((height, width), np.uint8)
-grabcut_mask[:] = cv2.GC_PR_BGD
+
+# Initialize mask image
+mask = np.zeros((height, width), np.uint8)
 
 # Arrays used by the algorithm internally
 background_model = np.zeros((1, 65), np.float64)
 foreground_model = np.zeros((1, 65), np.float64)
 
 cv2.grabCut(
-    cat_image,
-    grabcut_mask,
-    boundary_rectangle,
-    background_model,
-    foreground_model,
-    number_of_iterations,
-    cv2.GC_INIT_WITH_RECT,
+    img=cat_image,
+    mask=mask,
+    rect=boundary_rectangle,
+    bgdModel=background_model,
+    fgdModel=foreground_model,
+    iterCount=number_of_iterations,
+    mode=cv2.GC_INIT_WITH_RECT,
 )
 
 
-grabcut_mask = np.where(
-    (grabcut_mask == cv2.GC_PR_BGD) | (grabcut_mask == cv2.GC_BGD), 0, 1
-).astype("uint8")
-grabcut_image = cat_image.copy() * grabcut_mask[:, :, np.newaxis]
-show_image(grabcut_image, "GrabCut")
+grabcut_mask = np.where((mask == cv2.GC_PR_BGD) | (mask == cv2.GC_BGD), 0, 1).astype(
+    "uint8"
+)
+segmented_cat_image = cat_image.copy() * grabcut_mask[:, :, np.newaxis]
+show_image(segmented_cat_image, "GrabCut initialized with rectangle")
 
 #%% GrabCut with initial mask
+
+# Initialize the mask with known information
 initial_mask = binarized_cat.copy()
 show_image(255 * initial_mask, "Initial mask")
 
-grabcut_mask = np.zeros((height, width), np.uint8)
-grabcut_mask[:] = cv2.GC_PR_BGD
-grabcut_mask[initial_mask == 0] = cv2.GC_FGD
+mask = np.zeros((height, width), np.uint8)
+mask[:] = cv2.GC_PR_BGD
+mask[initial_mask == 0] = cv2.GC_FGD
 
 # Arrays used by the algorithm internally
 background_model = np.zeros((1, 65), np.float64)
@@ -107,7 +115,7 @@ foreground_model = np.zeros((1, 65), np.float64)
 
 cv2.grabCut(
     cat_image,
-    grabcut_mask,
+    mask,
     boundary_rectangle,
     background_model,
     foreground_model,
@@ -115,11 +123,11 @@ cv2.grabCut(
     cv2.GC_INIT_WITH_MASK,
 )
 
-grabcut_mask = np.where(
-    (grabcut_mask == cv2.GC_PR_BGD) | (grabcut_mask == cv2.GC_BGD), 0, 1
-).astype("uint8")
+grabcut_mask = np.where((mask == cv2.GC_PR_BGD) | (mask == cv2.GC_BGD), 0, 1).astype(
+    "uint8"
+)
 show_image(255 * grabcut_mask, "GrabCut mask")
 
 
 grabcut_image = cat_image.copy() * grabcut_mask[:, :, np.newaxis]
-show_image(grabcut_image, "GrabCut")
+show_image(grabcut_image, "GrabCut combined initialisation")
