@@ -15,7 +15,6 @@ def show_image(image, title=None):
     plt.xticks([]), plt.yticks([])
     plt.title(title)
     plt.show()
-    plt.savefig(OUTPUT_FOLDER / title)
 
 
 #%% Show original image
