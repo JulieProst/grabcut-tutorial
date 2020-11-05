@@ -8,10 +8,10 @@ It aims at presenting different ways to extract exterior contours in an image wi
 - the object of interest is always at the same place on the image
 - not many data available
 
-This tutorial is a notebook, with the following image used to try out different
-techniques:
+By following this notebook tutorial, you'll see how to segment the input spoon image
+ as follows: 
 
-![Example Cat Image](./images/white_cat_on_white_background.jpeg)
+![Example Cat Image](./doc/sample_segmentation.png)
 
 ## Installation
 
