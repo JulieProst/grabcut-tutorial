@@ -2,8 +2,8 @@
 from pathlib import Path
 
 import cv2.cv2 as cv2
-from matplotlib import pyplot as plt
 import numpy as np
+from matplotlib import pyplot as plt
 
 ROOT_FOLDER = Path(__file__).resolve().parents[0]
 IMAGES_FOLDER = ROOT_FOLDER / "images"
@@ -18,28 +18,29 @@ def show_image(image, title=None):
 
 
 #%% Show original image
-cat_image = cv2.imread(str(IMAGES_FOLDER / "white_cat_on_white_background.jpeg"))
-show_image(cat_image, "Original Image")
+original_image = cv2.imread(str(IMAGES_FOLDER / "spoon.jpg"))
+show_image(original_image, "Original Image")
+
 
 #%% Binarize input image
-gray_cat = cv2.cvtColor(cat_image, cv2.COLOR_RGB2GRAY)
-show_image(gray_cat, "Gray image")
+gray_image = cv2.cvtColor(original_image, cv2.COLOR_RGB2GRAY)
+show_image(gray_image, "Gray image")
 
-binarized_cat = cv2.adaptiveThreshold(
-    gray_cat,
+binarized_image = cv2.adaptiveThreshold(
+    gray_image,
     maxValue=1,
     adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
     thresholdType=cv2.THRESH_BINARY,
     blockSize=9,
     C=7,
 )
-show_image(255 * binarized_cat, "Binarized Image")
+show_image(255 * binarized_image, "Binarized Image")
 
 #%% Use OpenCV findContours method
 contours, hierarchy = cv2.findContours(
-    binarized_cat, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+    binarized_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
 )
-contours_image = cv2.drawContours(cat_image.copy(), contours, -1, (0, 255, 0), 1)
+contours_image = cv2.drawContours(original_image.copy(), contours, -1, (0, 255, 0), 1)
 show_image(contours_image, "Extracted contours")
 
 #%% Set GrabCut parameters
@@ -47,11 +48,11 @@ cv2.setRNGSeed(0)
 number_of_iterations = 5
 
 # Define boundary rectangle containing the foreground object
-height, width, _ = cat_image.shape
-left_margin_proportion = 0.1
-right_margin_proportion = 0.1
-up_margin_proportion = 0.07
-down_margin_proportion = 0.07
+height, width, _ = original_image.shape
+left_margin_proportion = 0.3
+right_margin_proportion = 0.3
+up_margin_proportion = 0.1
+down_margin_proportion = 0.1
 
 boundary_rectangle = (
     int(width * left_margin_proportion),
@@ -61,8 +62,8 @@ boundary_rectangle = (
 )
 
 #%%
-cat_image_with_boundary_rectangle = cv2.rectangle(
-    cat_image.copy(),
+original_image_with_boundary_rectangle = cv2.rectangle(
+    original_image.copy(),
     (int(width * left_margin_proportion), int(height * up_margin_proportion)),
     (
         int(width * (1 - right_margin_proportion)),
@@ -71,7 +72,7 @@ cat_image_with_boundary_rectangle = cv2.rectangle(
     (255, 0, 0),
     1,
 )
-show_image(cat_image_with_boundary_rectangle, "Image with boundary rectangle")
+show_image(original_image_with_boundary_rectangle, "Image with boundary rectangle")
 
 #%% GrabCut initialized only with a rectangle
 
@@ -83,7 +84,7 @@ background_model = np.zeros((1, 65), np.float64)
 foreground_model = np.zeros((1, 65), np.float64)
 
 cv2.grabCut(
-    img=cat_image,
+    img=original_image,
     mask=mask,
     rect=boundary_rectangle,
     bgdModel=background_model,
@@ -96,14 +97,14 @@ cv2.grabCut(
 grabcut_mask = np.where((mask == cv2.GC_PR_BGD) | (mask == cv2.GC_BGD), 0, 1).astype(
     "uint8"
 )
-segmented_cat_image = cat_image.copy() * grabcut_mask[:, :, np.newaxis]
+segmented_image = original_image.copy() * grabcut_mask[:, :, np.newaxis]
 
-show_image(segmented_cat_image, "GrabCut initialized with rectangle")
+show_image(segmented_image, "GrabCut initialized with rectangle")
 
 #%% GrabCut with initial mask
 
 # Initialize the mask with known information
-initial_mask = binarized_cat.copy()
+initial_mask = binarized_image.copy()
 show_image(255 * initial_mask, "Initial mask")
 
 mask = np.zeros((height, width), np.uint8)
@@ -115,7 +116,7 @@ background_model = np.zeros((1, 65), np.float64)
 foreground_model = np.zeros((1, 65), np.float64)
 
 cv2.grabCut(
-    cat_image,
+    original_image,
     mask,
     boundary_rectangle,
     background_model,
@@ -130,5 +131,5 @@ grabcut_mask = np.where((mask == cv2.GC_PR_BGD) | (mask == cv2.GC_BGD), 0, 1).as
 show_image(255 * grabcut_mask, "GrabCut mask")
 
 
-grabcut_image = cat_image.copy() * grabcut_mask[:, :, np.newaxis]
+grabcut_image = original_image.copy() * grabcut_mask[:, :, np.newaxis]
 show_image(grabcut_image, "GrabCut combined initialisation")
