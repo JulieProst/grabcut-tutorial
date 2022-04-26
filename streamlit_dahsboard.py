@@ -52,5 +52,6 @@ for column_dict in columns:
     column_name = column_dict['name']
     with column_dict["column"]:
         st.title(f"{column_name}")
-        selected_image = cv2.imread(str(IMAGES_FOLDER / column_name / selected_image_name))
+        selected_image_bgr = cv2.imread(str(IMAGES_FOLDER / column_name / selected_image_name))
+        selected_image = cv2.cvtColor(selected_image_bgr, cv2.COLOR_BGR2RGB)
         st.image(selected_image)
