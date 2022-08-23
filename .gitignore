@@ -1,5 +1,7 @@
 # IDE files
 .idea/
+/.python-version
 
 # Results file
 results/
+images/

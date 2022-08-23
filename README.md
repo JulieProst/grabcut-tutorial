@@ -16,14 +16,18 @@ By following this notebook tutorial, you'll see how to segment the input spoon i
 ## Installation
 
 - Clone the repo
-- Create a virtualenv and activate it:
+- Create a virtualenv and activate it. You can use [pyenv](https://github.com/pyenv/pyenv) to manage different Python 
+versions and create a virtual environment: 
+```bash
+pyenv install 3.8.2
+pyenv virtualenv 3.8.2 <ENV_NAME>
+cd <WORKIND_DIR>
+pyenv local <ENV_NAME>
 ```
-virtualenv -p python3 venv
-source venv/bin/activate
-```
+
 - Install the requirements:
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 You can now run the `grabcut_notebook.py` notebook to start extracting cat contours!
